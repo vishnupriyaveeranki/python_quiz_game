@@ -1,0 +1,152 @@
+import turtle
+import time
+import random
+
+# ---------------------------
+# Question Data
+# ---------------------------
+questions = [
+    {"question": "What is the output of: print(type([]))?", "options": ["A. <class 'list'>", "B. <class 'dict'>", "C. <class 'tuple'>", "D. <class 'set'>"], "answer": "A"},
+    {"question": "Which keyword is used to create a function in Python?", "options": ["A. func", "B. define", "C. def", "D. function"], "answer": "C"},
+    {"question": "What is the correct file extension for Python files?", "options": ["A. .pt", "B. .py", "C. .pyt", "D. .python"], "answer": "B"},
+    {"question": "Which data type is immutable?", "options": ["A. list", "B. dict", "C. set", "D. tuple"], "answer": "D"},
+    {"question": "Which of these is a Python tuple?", "options": ["A. [1, 2, 3]", "B. (1, 2, 3)", "C. {1, 2, 3}", "D. <1, 2, 3>"], "answer": "B"},
+    {"question": "How do you insert COMMENTS in Python code?", "options": ["A. // comment", "B. <!-- comment -->", "C. # comment", "D. /* comment */"], "answer": "C"},
+    {"question": "What is the output of: len('Hello')?", "options": ["A. 4", "B. 5", "C. 6", "D. Error"], "answer": "B"},
+    {"question": "Which module is used for random number generation?", "options": ["A. math", "B. os", "C. random", "D. numbers"], "answer": "C"},
+    {"question": "How do you start a for loop in Python?", "options": ["A. for(i=0;i<5;i++)", "B. for i in range(5):", "C. foreach i in range(5):", "D. loop i from 1 to 5"], "answer": "B"},
+    {"question": "What does the input() function do?", "options": ["A. Prints output", "B. Takes user input", "C. Returns list", "D. Exits program"], "answer": "B"},
+    {"question": "What is a correct way to define a list?", "options": ["A. list = {}", "B. list = []", "C. list = ()", "D. list = <>"], "answer": "B"},
+    {"question": "What is the output of: bool(0)?", "options": ["A. True", "B. False", "C. 0", "D. Error"], "answer": "B"},
+    {"question": "Which one is NOT a valid loop type in Python?", "options": ["A. for", "B. while", "C. do-while", "D. None of these"], "answer": "C"},
+    {"question": "What keyword is used for error handling?", "options": ["A. try", "B. handle", "C. catch", "D. except"], "answer": "A"},
+    {"question": "What symbol is used for exponentiation in Python?", "options": ["A. ^", "B. **", "C. ^^", "D. exp()"], "answer": "B"},
+    {"question": "How do you access a value in a dictionary?", "options": ["A. dict(index)", "B. dict.key()", "C. dict[key]", "D. dict->key"], "answer": "C"},
+    {"question": "What is the default value of a variable not assigned?", "options": ["A. 0", "B. None", "C. Null", "D. Undefined"], "answer": "B"},
+    {"question": "Which method adds an item to a list?", "options": ["A. append()", "B. insert()", "C. add()", "D. include()"], "answer": "A"},
+    {"question": "What is the output of 10 // 3?", "options": ["A. 3", "B. 3.33", "C. 4", "D. 10.0"], "answer": "A"},
+    {"question": "Which keyword is used to define a class?", "options": ["A. def", "B. function", "C. class", "D. object"], "answer": "C"},
+    {"question": "How do you convert a string to an integer?", "options": ["A. int('5')", "B. str(5)", "C. float('5')", "D. char('5')"], "answer": "A"},
+    {"question": "What is a correct way to open a file?", "options": ["A. open.file()", "B. file.open()", "C. open('file.txt')", "D. fopen('file.txt')"], "answer": "C"},
+    {"question": "What is a lambda function?", "options": ["A. Function with no name", "B. Loop", "C. Class", "D. Module"], "answer": "A"},
+    {"question": "What is __init__ in Python?", "options": ["A. A constructor method", "B. Destructor", "C. Loop", "D. Package"], "answer": "A"},
+    {"question": "What does 'break' do in a loop?", "options": ["A. Pauses", "B. Ends the loop", "C. Skips iteration", "D. Restarts loop"], "answer": "B"}
+]
+
+# ---------------------------
+# Initialization
+# ---------------------------
+random.shuffle(questions)
+score = 0
+current = 0
+user_answers = []
+current_result_page = 0
+RESULTS_PER_PAGE = 5
+
+screen = turtle.Screen()
+screen.title("🐍 Python Quiz Game")
+screen.bgcolor("lightblue")
+pen = turtle.Turtle()
+pen.hideturtle()
+pen.penup()
+
+# ---------------------------
+# Helper Functions
+# ---------------------------
+def clear_screen():
+    pen.clear()
+
+def show_question(q):
+    clear_screen()
+    pen.goto(0, 100)
+    pen.write(f"Q{current + 1}: {q['question']}", align="center", font=("Arial", 16, "bold"))
+    y = 60
+    for opt in q['options']:
+        pen.goto(0, y)
+        pen.write(opt, align="center", font=("Arial", 14, "normal"))
+        y -= 30
+    pen.goto(0, -100)
+    pen.write("Press A, B, C, or D to answer", align="center", font=("Arial", 12, "italic"))
+
+def show_result_page(page):
+    clear_screen()
+    pen.goto(0, 200)
+    pen.write(f"Quiz Complete! Your Score: {score} / {len(questions)}", align="center", font=("Arial", 18, "bold"))
+
+    start_index = page * RESULTS_PER_PAGE
+    end_index = min(start_index + RESULTS_PER_PAGE, len(questions))
+
+    y = 160
+    for i in range(start_index, end_index):
+        q = questions[i]
+        user = user_answers[i]
+        correct = q["answer"]
+        is_correct = user == correct
+        result_text = f"Q{i+1}: {q['question']}"
+        answer_text = f"Your Answer: {user} | Correct: {correct} {'✓' if is_correct else '✗'}"
+        pen.goto(0, y)
+        pen.write(result_text, align="center", font=("Arial", 12, "bold"))
+        y -= 20
+        pen.goto(0, y)
+        pen.write(answer_text, align="center", font=("Arial", 12, "normal"))
+        y -= 40
+
+    pen.goto(0, -220)
+    pen.write("Press N for next, P for previous page", align="center", font=("Arial", 10, "italic"))
+
+def next_page():
+    global current_result_page
+    if (current_result_page + 1) * RESULTS_PER_PAGE < len(questions):
+        current_result_page += 1
+        show_result_page(current_result_page)
+
+def prev_page():
+    global current_result_page
+    if current_result_page > 0:
+        current_result_page -= 1
+        show_result_page(current_result_page)
+
+def check_answer(ans):
+    global current, score
+    correct = questions[current]["answer"]
+    user_answers.append(ans)
+
+    if ans == correct:
+        score += 1
+        pen.goto(0, -150)
+        pen.write("✅ Correct!", align="center", font=("Arial", 12, "bold"))
+    else:
+        pen.goto(0, -150)
+        pen.write(f"❌ Wrong! Correct Answer: {correct}", align="center", font=("Arial", 12, "bold"))
+
+    screen.update()
+    time.sleep(1.2)
+
+    current += 1
+    if current < len(questions):
+        show_question(questions[current])
+    else:
+        show_result_page(current_result_page)
+
+# ---------------------------
+# Key Bindings
+# ---------------------------
+screen.listen()
+screen.onkey(lambda: check_answer("A"), "a")
+screen.onkey(lambda: check_answer("A"), "A")
+screen.onkey(lambda: check_answer("B"), "b")
+screen.onkey(lambda: check_answer("B"), "B")
+screen.onkey(lambda: check_answer("C"), "c")
+screen.onkey(lambda: check_answer("C"), "C")
+screen.onkey(lambda: check_answer("D"), "d")
+screen.onkey(lambda: check_answer("D"), "D")
+screen.onkey(next_page, "n")
+screen.onkey(next_page, "N")
+screen.onkey(prev_page, "p")
+screen.onkey(prev_page, "P")
+
+# ---------------------------
+# Start Quiz
+# ---------------------------
+show_question(questions[current])
+turtle.mainloop()
